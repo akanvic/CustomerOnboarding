@@ -23,9 +23,11 @@ namespace LoggerLibrary
                 .Build();
 
             Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
+                .Enrich.FromLogContext()
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
-
+            
             SerilogHostBuilderExtensions.UseSerilog(builder);
             return builder;
         }
