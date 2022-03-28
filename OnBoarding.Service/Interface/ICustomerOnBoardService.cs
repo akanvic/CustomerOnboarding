@@ -14,8 +14,6 @@ namespace OnBoarding.Service.Interface
         Task<ResponseModel> OnboardCustomer(CustomerDTO customer);
         Task<ResponseModel> ValidateCustomer(string phone, string otp);
         Task<IEnumerable<OnboardedCustomersDto>> GetExistingCustomers();
-        bool DoesUserExist(string email, string phoneNumber);
-       // Task<ResponseModel> GetUserAsync(string email, string phoneNumber, bool trackChanges);
 
     }
 }

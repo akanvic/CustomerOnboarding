@@ -14,5 +14,6 @@ namespace OnBoarding.Repo.Data.Repository.Interfaces
         Task<IEnumerable<OnboardedCustomersDto>> GetExistingCustomers();
 
         Task UpdateCustomerStatus(string phoneNumber);
+        bool DoesUserExist(string phoneNumber, string email);
     }
 }

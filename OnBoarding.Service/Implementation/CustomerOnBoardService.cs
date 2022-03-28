@@ -45,13 +45,13 @@ namespace OnBoarding.Service.Implementation
         public async Task<ResponseModel> OnboardCustomer(CustomerDTO customer)
         {
             _validationService.Validate(_customerValidator.Validate(customer), new List<(bool, string, object, string)>{
-                (false, "Benefit Name", "", " Already Exists")
+                (false, "Customer", "", " Already Exists")
             });
 
-            var findUser = DoesUserExist(customer.Email,customer.PhoneNumber);
-            if(findUser == false)
+            var findUser = _unitOfWork.CustomerOnBoardRepo.DoesUserExist(customer.PhoneNumber, customer.Email);
+            if(findUser == true)
             {
-                return new ResponseModel { State = 0, Msg = "The Customer with the email address already exist", Data = "" };
+                return new ResponseModel { State = 0, Msg = "The Customer with the email address or phone number already exist", Data = "" };
             }
             using var hasher = new HMACSHA1();
             var user = new Customer
@@ -68,33 +68,17 @@ namespace OnBoarding.Service.Implementation
             _unitOfWork.Save();
             return new ResponseModel { State = 1, Msg ="Customer has been OnBoarded successfully", Data = user };
         }
-        //public async Task<ResponseModel> GetUserAsync(string email,string phoneNumber, bool trackChanges)
-        //{
-        //   var ret=  _unitOfWork.CustomerOnBoardRepo.FindByConditionAsync(
-        //        c => c.Email.Equals(email) || c.PhoneNumber.Equals(phoneNumber), trackChanges).Result.SingleOrDefaultAsync();
-
-        //}
-        public bool DoesUserExist(string email, string phoneNumber)
-        {
-            var ret =  _unitOfWork.CustomerOnBoardRepo
-                        .FindByConditionAsync(c => c.Email.Equals(email) || c.PhoneNumber.Equals(phoneNumber), false);
-            if(ret == null)
-                return false;
-            return true;
-        }
-        //=> await _unitOfWork.CustomerOnBoardRepo.FindByConditionAsync(
-        //    c => c.Email.Equals(email) || c.PhoneNumber.Equals(phoneNumber), trackChanges).Result.SingleOrDefaultAsync();
 
         public async Task<ResponseModel> ValidateCustomer(string phone, string otp)
         {
             var ret = await _unitOfWork.CustomerOnBoardRepo.
                 FindByConditionAsync(c => c.PhoneNumber.Equals(phone) && c.Otp.Equals(otp), true).Result.SingleOrDefaultAsync();
             if (ret == null)
-                return new ResponseModel { State = 0, Msg="The Customer's OnBoarding has not been confirmed",Data=ret};
+                return new ResponseModel { State = 0, Msg="The Customer's OnBoarding has not been confirmed",Data=""};
 
             await _unitOfWork.CustomerOnBoardRepo.UpdateCustomerStatus(phone);
             _unitOfWork.Save();
-            return new ResponseModel { State = 1, Msg = "The Customer's OnBoarding been confirmed Successfully", Data = ret };
+            return new ResponseModel { State = 1, Msg = "The Customer's OnBoarding been confirmed Successfully", Data = "" };
         }
     }
 }

@@ -42,11 +42,17 @@ namespace OnBoarding.Repo.Data.Repository.Implementations
                                                StateName = a.StateName,
                                                LgaName = a.LgaName
                                            }).ToListAsync();
-
+            
             return existingCustomers;
         }
 
-
+        public bool DoesUserExist(string phoneNumber, string email)
+        {
+            var ret = _dbContext.Customers.Any(c => c.PhoneNumber.Equals(phoneNumber) || c.Email.Equals(email));
+            if (ret == false)
+                return ret;
+            return true;
+        }
         public async Task UpdateCustomerStatus(string phoneNumber)
         {
             var customerFromDB = await _dbContext.Customers.FirstOrDefaultAsync(c=>c.PhoneNumber == phoneNumber);
